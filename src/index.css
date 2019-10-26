@@ -59,3 +59,12 @@ code {
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
 }
+.codearea_wrapper{
+  position: relative;
+}
+.fullscreen{
+  position: absolute;
+  right: 2% !important;
+  top: 26% !important;
+  cursor: pointer
+}

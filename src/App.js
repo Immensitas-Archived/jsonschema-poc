@@ -4,7 +4,8 @@ import CollapsibleFieldTemplate from "./CollapsibleFieldTemplate";
 import MentionTextArea from "./mentionsTextArea";
 import Accordion from "./accordian";
 import Mentio from "./mentio";
-import ImageSelect from "./ImageSelect";
+import CodeArea from "./CodeArea";
+import EmojiPicker from "./EmojiPicker";
 
 const log = (type) => console.log.bind(console, type);
 class App extends React.Component {
@@ -103,11 +104,14 @@ class App extends React.Component {
                 console.log(event.target.value);
               }
             }
+        },
+        title:{
+            "ui:widget": EmojiPicker
         }
       },
       webPushOptionalSettings:{
         title:{
-          "ui:widget": ImageSelect
+          "ui:widget": CodeArea
         }
       }
     };
@@ -145,7 +149,6 @@ class App extends React.Component {
         formData={this.formData}
         uiSchema={this.uiSchema}
         FieldTemplate={CollapsibleFieldTemplate}
-        //FieldTemplate = {Accordion}
         formContext={{ hideAll: false }}
         className="accordian-widget"
         onChange={log("changed")}
