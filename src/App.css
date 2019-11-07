@@ -1,0 +1,55 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #09d3ac;
+}
+#root_general__title{
+  display: none !important; 
+}
+#root_template legend{
+  display: none; 
+}
+#root_additional legend{
+  display: none; 
+}
+#root_schedule legend{
+  display: none; 
+}
+.schemaContainer{
+  border: 1px solid #cfcfcf;
+  border-radius: 2%;
+  margin:10px;
+  padding: 10px;
+}
+.codearea_wrapper{
+  position: relative;
+}
+
+.codearea_wrapper i{
+  position: absolute;
+  right: 8px;
+  top:10px;
+}
+.plus:after{
+  content: "+"
+}
+.minus:after{
+  content: "-"
+}

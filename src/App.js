@@ -1,314 +1,182 @@
-import React from 'react';
+import React from "react";
+import { render } from "react-dom";
 import Form from "react-jsonschema-form";
-import CollapsibleFieldTemplate from "./CollapsibleFieldTemplate";
-import MentionTextArea from "./mentionsTextArea";
-import Accordion from "./accordian";
+import fields from "react-jsonschema-form-extras";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-4-theme/dist/bootstrap-theme.min.css";
+import { glyphicon} from 'react-bootstrap';
 import Mentio from "./mentio";
 import CodeArea from "./CodeArea";
-import EmojiPicker from "./EmojiPicker";
+import DatePickerComponent from "./DatePicker";
+import TimePickerComponent from "./TimePicker";
 
-const log = (type) => console.log.bind(console, type);
 class App extends React.Component {
-  constructor() {
-    super();
-    this.macros = [
-      {
-        "placeholder": "ANDROID_FCM_ID",
-        "alias": "ANDROID_FCM_ID",
-        "type": "NbaPlaceHolder"
-      },
-      {
-        "placeholder": "GEOFENCE_ID",
-        "alias": "GEOFENCE_ID",
-        "type": "NbaPlaceHolder"
-      },
-      {
-        "placeholder": "GEOFENCE_LOCATION",
-        "alias": "GEOFENCE_LOCATION",
-        "type": "NbaPlaceHolder"
-      }
-    ];
-    this.userMentionData = this.macros.map(placeholders => ({
-      id: placeholders.placeholder,
-      display: `${placeholders.alias}`
-    }));
-  
-    this.schema = {
-      type: "object",
-      classNames: "mmmm",
-      properties: {
-        webPushGeneralSettings: {
-          type: "object",
-          title: "1. General Settings",
-          properties: {
-            name: {
-              type: "string",
-              title: "Name",
-              readOnly: true
+   constructor() {
+      super();
+      this.schema =  {
+        "type": "object",
+        "properties":{
+            "general":{
+              "type": "object",
+              "title": "1. General Settings",
+              "properties":{
+                "name":{
+                    "title": "Name",
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 25
+                },
+                "chooseTemplate":{
+                    "title": "Choose Template",
+                    "type": "string",
+                    "enum":[
+                      "Code your own"
+                    ],
+                    "default": "Code your own",
+                    "readOnly":true
+                },
+                "label":{
+                  "type":"string",
+                  "title": "Label Settings",
+                  "enum":[
+                      "Credit Card",
+                      "Personal Loan",
+                      "Auto Loan"
+                  ]
+                }
+              },
+              "required":["name","label"]
             },
-            title: {
-              type: "string",
-              title: "Title"
+            "template":{
+              "type": "object",
+              "title": "2. Template Settings",
+              "properties":{
+                "codeArea":{
+                  "type": "string",
+                  "title": "Code Area"
+                }
+              },
+              "required":["codeArea"]
             },
-            message: {
-              type: "string",
-              title: "Message"
-            }
-          },
-          required: ["name", "title"]
-        },
-        webPushOptionalSettings: {
-          type: "object",
-          title: "2. Optional Settings",
-          properties: {
-            name: {
-              type: "string",
-              title: "Name",
-              placeholder: "Enter engagment name here"
-            },
-            title: {
-              type: "string",
-              title: "Title"
-            },
-            message: {
-              type: "string",
-              title: "Message"
-            }
-          },
-          required: ["name", "title"]
-        },
-        listOfStrings: {
-          type: "array",
-          title: "A list of strings",
-          items: {
-            type:"object",
-            properties:{
-              ctaText:{
-                type: "string",
-                title:"CTA TEXT",
-                default: "bazinga"
+            "additional":{
+              "type": "object",
+              "title": "3. Additional Settings",
+              "properties":{
+                "from":{
+                  "type":"string",
+                  "title": "From",
+                  "enum": [
+                    "test@lemnisk.co"
+                  ]
+                },
+                "replyTo":{
+                  "type":"string",
+                  "title": "Reply To",
+                  "enum": [
+                    "test@lemnisk.co"
+                  ]
+                },
+                "previewText":{
+                  "type":"string",
+                  "title": "Preview Text"
+                },
+                "subject":{
+                  "type":"string",
+                  "title": "Subject"
+                }
               }
+            },
+            "schedule":{
+              "type": "object",
+              "title": "4. Schedule Settings",
+              "properties":{
+                "scheduleJson":{
+                  "type":"string",
+                  "title": "Schedule",
+                  "enum": [
+                    "Later",
+                    "Trigger"
+                  ],
+                  "default": "Later"
+                },
+                "date":{
+                  "type":"string",
+                  "title": "Send Date"
+                },
+                "time":{
+                  "type":"string",
+                  "title": "Time"
+                }
+              }
+            }
+        }
+      };
+      this.uiSchema = {
+        "general": {
+          "ui:field": "collapsible",
+           "collapse": {
+            "collapsed": false,
+            "icon": {
+              "enabled": "plus",
+              "disabled": "minus"
+            },
+            "field": "ObjectField"
+          }
+        },
+        "template":{
+          "ui:field": "collapsible",
+          "collapse": {
+            "field": "ObjectField"
+          },
+          "codeArea":{
+            "ui:widget": CodeArea
+          }
+        },
+        "additional":{
+          "ui:field": "collapsible",
+          "collapse": {
+            "field": "ObjectField"
+          },
+          "subject":{
+            "ui:widget": "textarea",
+            "ui:options": {
+              "rows": 3
             }
           }
-        }
-      }
-    };
-    this.uiSchema = {
-      webPushGeneralSettings:{
-        message:{
-            "ui:widget": Mentio,
-            "ui:options": {
-              macros: this.userMentionData,
-              singleLine: true,
-              handleChange:function(event){
-                console.log(event.target.value);
-              }
-            }
         },
-        title:{
-            "ui:widget": EmojiPicker
+        "schedule": {
+          "ui:field": "collapsible",
+          "collapse": {
+            "field": "ObjectField"
+          },
+          "date":{
+            "ui:widget": DatePickerComponent
+          },
+          "time":{
+            "ui:widget": TimePickerComponent
+          }
         }
-      },
-      webPushOptionalSettings:{
-        title:{
-          "ui:widget": CodeArea
+      };
+      this.transformErrors = function (errors) {
+            return errors.map(error => {
+                if (error.name === "pattern") {
+                    error.message = "Only digits are allowed"
+                }else if(error.property['lp'])(
+                    error.message = "Please enter valid url"
+                )
+                return error;
+            });
         }
-      }
-    };
-    this.formData = {
-      webPushGeneralSettings:{
-        name: "Engagement Name",
-        title: "Title Goes here",
-        message: "Message goes here"
-      },
-      listOfStrings:[
-        {
-           ctaText: "Helloo"
-        }
-      ]
-    };
-  }
-  
-  handleChange = (event, newValue, newPlainTextValue, mentions) => {
-    console.log(newValue, newPlainTextValue, mentions)
-    this.setState({
-      value: newValue,
-      mentionData: {newValue, newPlainTextValue, mentions}
-    })
-  }
-
-  handleChangeSingle = (e, newValue, newPLainTextValue, mentions) => {
-    this.setState({
-      singleLineValue: newValue
-    })
-  }
-  render(){
-    return (<div style={{ width: "30%"}}>
-      <Form
-        schema={this.schema}
-        formData={this.formData}
-        uiSchema={this.uiSchema}
-        FieldTemplate={CollapsibleFieldTemplate}
-        formContext={{ hideAll: false }}
-        className="accordian-widget"
-        onChange={log("changed")}
-        onSubmit={log("submitted")}
-        onError={log("errors")}
-      />
-    </div>);
- };
+   }
+    render(){
+      return (<div class="schemaContainer"style={{ width: "30%"}}>
+        <Form schema={this.schema} 
+              uiSchema={this.uiSchema} 
+              fields={fields} 
+              liveValidate={true} 
+              transformErrors={this.transformErrors} 
+              showErrorList={false}/>
+      </div>);
+  };
 }
-export default App;
-
-
-// import React from "react";
-// import Form from "react-jsonschema-form";
-// //import fields from "react-jsonschema-form-extras-ben";
-// //import otherFields from "other-fields";
-// import {fields, collapsible} from "react-jsonschema-form-extras";
-// import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
-// import "react-day-picker";
-// //let allFields = Object.assign({}, fields, otherFields);
-// class App extends React.Component {
-//   constructor(){
-//     super();
-//       this.schema = {
-//         type: "object",
-//         classNames: "mmmm",
-//         properties: {
-//           webPushGeneralSettings: {
-//             type: "object",
-//             title: "1. General Settings",
-//             properties: {
-//               name: {
-//                 type: "string",
-//                 title: "Name",
-//                 readOnly: true
-//               },
-//               title: {
-//                 type: "string",
-//                 title: "Title"
-//               },
-//               message: {
-//                 type: "string",
-//                 title: "Message"
-//               }
-//             },
-//             required: ["name", "title"]
-//           },
-//           webPushOptionalSettings: {
-//             type: "object",
-//             title: "2. Optional Settings",
-//             properties: {
-//               name: {
-//                 type: "string",
-//                 title: "Name",
-//                 placeholder: "Enter engagment name here"
-//               },
-//               title: {
-//                 type: "string",
-//                 title: "Title"
-//               },
-//               message: {
-//                 type: "string",
-//                 title: "Message"
-//               }
-//             },
-//             required: ["name", "title"]
-//           },
-//           listOfStrings: {
-//             type: "array",
-//             title: "A list of strings",
-//             items: {
-//               type:"object",
-//               properties:{
-//                 ctaText:{
-//                   type: "string",
-//                   title:"CTA TEXT",
-//                   default: "bazinga"
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       };
-//       this.uiSchema = {
-//          "ui:field": "collapsible",
-//         "collapse": {
-//           "field": "table"
-//         },
-//         webPushGeneralSettings:{
-//           message:{
-//               "ui:widget": Mentio,
-//               "ui:options": {
-//                 macros: this.userMentionData,
-//                 singleLine: true,
-//                 handleChange:function(event){
-//                   console.log(event.target.value);
-//                 }
-//               }
-//           }
-//         }
-//       };
-//       this.formData = {
-//         webPushGeneralSettings:{
-//           name: "Engagement Name",
-//           title: "Title Goes here",
-//           message: "Message goes here"
-//         },
-//         listOfStrings:[
-//           {
-//             ctaText: "Helloo"
-//           }
-//         ]
-//       };
-//     // this.schema = {
-//     //   type: "object",
-//     //   properties: {
-//     //     firstName: { type: "string" },
-//     //     lastName: { type: "string" },
-//     //     age: { type: "boolean" }
-//     //   }
-//     // }
-
-//     // this.uiSchema = {
-//     //   firstName: {
-//     //       "ui:field": "collapsible",
-//     //       collapse: {
-//     //         field: "StringField",
-//     //         legend: {
-//     //           component: "LanguageLegend",
-//     //           props: {
-//     //             language: "EN"
-//     //           }
-//     //         }
-//     //       }
-//     //   },
-//     //   lastName: {
-//     //       "ui:field": "collapsible",
-//     //       collapse: {
-//     //         field: "StringField",
-//     //         legend: {
-//     //           component: "LanguageLegend",
-//     //           props: {
-//     //             language: "EN"
-//     //           }
-//     //         }
-//     //       }
-//     //   }
-//     // }
-
-//     this.formContext = {
-//       legends: {
-//         LanguageLegend: (props) => (<h1>Expected {props.language} characters</h1>)
-//       }
-//     }
-//   }
-//     render(){
-//         return (<div style={{ width: "30%"}}>
-//             <Form formContext={this.formContext} schema={this.schema} uiSchema={this.uiSchema} fields={fields}/>
-
-//         </div>);
-//     }
-// }
-// export default App;
+export default App
